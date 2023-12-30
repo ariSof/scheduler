@@ -19,5 +19,67 @@ $(function () {
   // the values of the corresponding textarea elements. HINT: How can the id
   // attribute of each time-block be used to do this?
   //
-  // TODO: Add code to display the current date in the header of the page.
+
+  var today = dayjs();
+  var reformatDate = today.format('dddd, MMMM D');
+  var currentHour = today.format('H');   //'h A');  //H gives the time in 24hr clock, h A gives time in 12hr clock + AM or PM
+  console.log(currentHour);
+  console.log(reformatDate);
+
+  $('#currentDay').text(reformatDate);
+
+
+  // <div id="hour-11" class="row time-block future">
+  //       <div class="col-2 col-md-1 hour text-center py-3">11AM</div>
+  //       <textarea class="col-8 col-md-10 description" rows="3"> </textarea>
+  //       <button class="btn saveBtn col-2 col-md-1" aria-label="save">
+  //         <i class="fas fa-save" aria-hidden="true"></i>
+  //       </button>
+  //     </div>
+
+  var timeContainer = $('.container-fluid');
+
+  //Add div for each hour 9am-5pm
+  var printTimes = function () {
+    var time = 9;
+    var counter = 0;
+
+    for(var i=0; i<=8; i++)
+    {
+      counter = i + time;
+      var divEl = $('<div id="hour-'+ counter +'">');
+
+      if(counter < currentHour){
+        divEl.addClass('row time-block past');
+      } else if(counter == currentHour) {
+        divEl.addClass('row time-block present');
+      } else {
+        divEl.addClass('row time-block future');
+      }
+  
+      var colDiv = $('<div class="col-2 col-md-1 hour text-center py-3">');
+
+      if(counter <12){
+        colDiv.text(counter + "AM");  
+      }
+      else {
+        colDiv.text(counter + "PM");
+      }
+      
+      colDiv.appendTo(divEl);
+  
+      var textAreaEL = $('<textarea class="col-8 col-md-10 description" rows="3">');
+      var btnEl = $('<button class="btn saveBtn col-2 col-md-1" aria-label="save">');
+      var iEl = $('<i class="fas fa-save" aria-hidden="true">');
+  
+      textAreaEL.appendTo(divEl);
+      iEl.appendTo(btnEl);
+      btnEl.appendTo(divEl);
+      divEl.appendTo(timeContainer);
+
+    }
+
+  };
+
+  printTimes();
 });
