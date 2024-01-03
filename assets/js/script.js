@@ -20,66 +20,89 @@ $(function () {
   // attribute of each time-block be used to do this?
   //
 
+
+
   var today = dayjs();
   var reformatDate = today.format('dddd, MMMM D');
   var currentHour = today.format('H');   //'h A');  //H gives the time in 24hr clock, h A gives time in 12hr clock + AM or PM
+  
   console.log(currentHour);
   console.log(reformatDate);
 
   $('#currentDay').text(reformatDate);
 
-
-  // <div id="hour-11" class="row time-block future">
-  //       <div class="col-2 col-md-1 hour text-center py-3">11AM</div>
-  //       <textarea class="col-8 col-md-10 description" rows="3"> </textarea>
-  //       <button class="btn saveBtn col-2 col-md-1" aria-label="save">
-  //         <i class="fas fa-save" aria-hidden="true"></i>
-  //       </button>
-  //     </div>
-
-  var timeContainer = $('.container-fluid');
-
-  //Add div for each hour 9am-5pm
+  //Add appropriate class for Past Present or Future used in CSS
   var printTimes = function () {
-    var time = 9;
-    var counter = 0;
-
-    for(var i=0; i<=8; i++)
-    {
-      counter = i + time;
-      var divEl = $('<div id="hour-'+ counter +'">');
-
-      if(counter < currentHour){
-        divEl.addClass('row time-block past');
-      } else if(counter == currentHour) {
-        divEl.addClass('row time-block present');
-      } else {
-        divEl.addClass('row time-block future');
-      }
+      var time = 9;
+      var counter = 0;
   
-      var colDiv = $('<div class="col-2 col-md-1 hour text-center py-3">');
-
-      if(counter <12){
-        colDiv.text(counter + "AM");  
+      for(var i=0; i<=8; i++)
+      {
+        counter = i + time;
+        var divEl = $("#hour-"+ counter);
+        
+        if(counter < currentHour){
+          divEl.addClass('past');
+        } else if(counter == currentHour) {
+          divEl.addClass('present');
+        } else {
+          divEl.addClass('future');
+        }
       }
-      else {
-        colDiv.text(counter + "PM");
-      }
-      
-      colDiv.appendTo(divEl);
-  
-      var textAreaEL = $('<textarea class="col-8 col-md-10 description" rows="3">');
-      var btnEl = $('<button class="btn saveBtn col-2 col-md-1" aria-label="save">');
-      var iEl = $('<i class="fas fa-save" aria-hidden="true">');
-  
-      textAreaEL.appendTo(divEl);
-      iEl.appendTo(btnEl);
-      btnEl.appendTo(divEl);
-      divEl.appendTo(timeContainer);
+  }
 
+
+  var timeBlockEl = $('.container-fluid');
+  var saveBtn = $('.saveBtn');
+  var textAreaEL = $('.description');
+
+  // Reads items from local storage and returns array of agenda item objects.
+  // Returns an empty array ([]) if there aren't any items.
+  function readSavedItemsFromStorage() {
+    var items = localStorage.getItem('items');
+    if (items) {
+      items = JSON.parse(items);
+    } else {
+      items = [];
+    }
+    return items;
+  }
+
+  //Save agenda items to local storage
+  function saveItemsToStorage(items) {
+    console.log("trying to save to local storage: " + items);
+    localStorage.setItem('items', JSON.stringify(items));
+  }
+
+  //Handles saving the agenda item for a particular time
+  function handleSaveButton(event) {
+    event.preventDefault();
+
+    var element = $(event.target).prevAll();
+    console.log(element); //JSON.stringify(element));
+
+    var atrNum = $(event.target).attr('item-div');
+    console.log("Attribute itemNum saved=" + atrNum);
+    if (!atrNum) {
+      console.log("clicked icon");
+      return;
+    }
+    var textItemToSave = $("#text-" + atrNum).val().trim();
+    console.log("the text?" + textItemToSave);
+
+    var newItem = {
+      time: atrNum,
+      agendaItem: textItemToSave,
     }
 
-  };
+    // add item to local storage
+    var items = readSavedItemsFromStorage();
+    items.push(newItem);
+    saveItemsToStorage(items);
+  }
+
+  timeBlockEl.on("click", ".saveBtn", handleSaveButton); 
 
   printTimes();
+
 });
